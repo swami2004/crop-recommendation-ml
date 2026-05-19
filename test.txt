@@ -4,3 +4,4 @@ retry-host-fix
 ssh-fix
 final-ssh-check
 github-actions-working
+docker-working
