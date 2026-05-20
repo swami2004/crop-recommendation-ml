@@ -1,4 +1,4 @@
-name: Django CI/CD
+name: Deploy to EC2
 
 on:
   push:
@@ -10,25 +10,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-    - name: Deploy to EC2
-      uses: appleboy/ssh-action@master
-
+    - name: Deploy via SSH
+      uses: appleboy/ssh-action@v1.0.3
       with:
         host: ${{ secrets.EC2_HOST }}
-        username: ubuntu
-        key: ${{ secrets.EC2_SSH_KEY }}
-
+        username: ${{ secrets.EC2_USER }}
+        key: ${{ secrets.EC2_KEY }}
         script: |
-          cd ~/crop-recommendation-ml
-
+          cd crop-recommendation-ml
           git pull origin main
-
-          docker stop crop-container || true
-          docker rm crop-container || true
-
-          docker build -t crop-project .
-
-          docker run -d -p 8000:8000 --name crop-container crop-project
+          docker build -t crop-app .
+          docker stop crop-app || true
+          docker rm crop-app || true
+          docker run -d -p 5000:5000 --name crop-app crop-app
